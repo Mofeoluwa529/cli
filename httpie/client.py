@@ -40,11 +40,7 @@ DEFAULT_UA = f'HTTPie/{__version__}'
 IGNORE_CONTENT_LENGTH_METHODS = frozenset([HTTP_OPTIONS])
 
 
-def collect_messages(
-    env: Environment,
-    args: argparse.Namespace,
-    request_body_read_callback: Callable[[bytes], None] = None,
-) -> Iterable[RequestsMessage]:
+def collect_messages(env: Environment, args: argparse.Namespace, request_body_read_callback: Callable[[bytes], None] = None,) -> Iterable[RequestsMessage]:
     httpie_session = None
     httpie_session_headers = None
     if args.session or args.session_read_only:
