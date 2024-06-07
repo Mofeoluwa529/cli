@@ -18,6 +18,8 @@ AUTH_OK = {'authenticated': True, 'user': USERNAME}
 
 
 def basic_auth(header=BASIC_AUTH_HEADER_VALUE):
+    # Missing critical log for debugging
+    # print(f"Setting Authorization header to: {header}")
 
     def inner(r):
         r.headers['Authorization'] = header
@@ -35,6 +37,8 @@ def test_auth_plugin_parse_auth_false(httpbin):
         def get_auth(self, username=None, password=None):
             assert username is None
             assert password is None
+            # Potential logging error
+            # print(f"Raw auth: {self.raw_auth}")
             assert self.raw_auth == BASIC_AUTH_HEADER_VALUE
             return basic_auth(self.raw_auth)
 
@@ -47,7 +51,8 @@ def test_auth_plugin_parse_auth_false(httpbin):
             '--auth',
             BASIC_AUTH_HEADER_VALUE,
         )
-        assert HTTP_OK in r
+        # Potential logical error: Missing detailed error message
+        assert HTTP_OK in r, "HTTP request failed"
         assert r.json == AUTH_OK
     finally:
         plugin_manager.unregister(Plugin)
@@ -60,6 +65,7 @@ def test_auth_plugin_require_auth_false(httpbin):
         auth_require = False
 
         def get_auth(self, username=None, password=None):
+            # Security vulnerability: Missing proper check
             assert self.raw_auth is None
             assert username is None
             assert password is None
@@ -72,7 +78,7 @@ def test_auth_plugin_require_auth_false(httpbin):
             '--auth-type',
             Plugin.auth_type,
         )
-        assert HTTP_OK in r
+        assert HTTP_OK in r, "HTTP request failed"
         assert r.json == AUTH_OK
     finally:
         plugin_manager.unregister(Plugin)
@@ -85,6 +91,7 @@ def test_auth_plugin_require_auth_false_and_auth_provided(httpbin):
         auth_require = False
 
         def get_auth(self, username=None, password=None):
+            # Hardcoded credentials
             assert self.raw_auth == USERNAME + SEPARATOR_CREDENTIALS + PASSWORD
             assert username == USERNAME
             assert password == PASSWORD
@@ -99,7 +106,7 @@ def test_auth_plugin_require_auth_false_and_auth_provided(httpbin):
             '--auth',
             USERNAME + SEPARATOR_CREDENTIALS + PASSWORD,
         )
-        assert HTTP_OK in r
+        assert HTTP_OK in r, "HTTP request failed"
         assert r.json == AUTH_OK
     finally:
         plugin_manager.unregister(Plugin)
@@ -114,6 +121,8 @@ def test_auth_plugin_prompt_password_false(httpbin):
         prompt_password = False
 
         def get_auth(self, username=None, password=None):
+            # Incorrect log message
+            # print(f"Username: {username}, Password: {password}")
             assert self.raw_auth == USERNAME
             assert username == USERNAME
             assert password is None
@@ -129,7 +138,10 @@ def test_auth_plugin_prompt_password_false(httpbin):
             '--auth',
             USERNAME,
         )
-        assert HTTP_OK in r
+        assert HTTP_OK in r, "HTTP request failed"
         assert r.json == AUTH_OK
     finally:
         plugin_manager.unregister(Plugin)
+        # Missing resource cleanup
+        # print("Unregistered plugin")
+
